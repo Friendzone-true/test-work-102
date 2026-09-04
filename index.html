@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Power Profiles</title>
+    <style>
+      :root {
+        --red: #14b8a6;
+        --dark: #071a2c;
+        --panel: #102a43;
+        --text: #fff;
+        --muted: #a8dadc;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--dark);
+        color: var(--text);
+        font-family: Arial, sans-serif;
+      }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px max(5vw, 24px);
+        background: #05101d;
+      }
+      .brand {
+        color: var(--red);
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+      }
+      .manage {
+        background: transparent;
+        border: 1px solid #777;
+        border-radius: 4px;
+        padding: 8px 12px;
+        color: rgb(238, 238, 238);
+        cursor: pointer;
+      }
+      .main {
+        max-width: 850px;
+        margin: auto;
+        padding: 30px 20px 60px;
+      }
+      .calculator {
+        display: none;
+      }
+      h1 {
+        margin: 0 0 28px;
+        font-size: clamp(1.8rem, 5vw, 3.2rem);
+        text-align: center;
+      }
+      h2 {
+        margin: 0;
+        font-size: 1.25rem;
+      }
+      .profile-summary {
+        color: var(--muted);
+        text-align: center;
+        margin: -15px 0 30px;
+      }
+      .card {
+        background: var(--panel);
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 7px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      label {
+        display: block;
+        margin-bottom: 6px;
+        color: #ddd;
+        font-size: 0.9rem;
+      }
+      input {
+        width: 100%;
+        border: 1px solid #555;
+        border-radius: 4px;
+        background: #303030;
+        padding: 10px;
+        color: #fff;
+        font-size: 1rem;
+      }
+      .summary {
+        border-left: 5px solid var(--red);
+        background: #272727;
+        padding: 22px;
+        border-radius: 5px;
+        text-align: center;
+      }
+      .summary p {
+        margin: 0;
+        color: var(--muted);
+      }
+      .summary strong {
+        display: block;
+        margin: 7px 0;
+        color: #fff;
+        font-size: 2rem;
+      }
+      .profile-screen {
+        padding: 8vh 20px;
+        text-align: center;
+      }
+      .profile-grid {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        flex-wrap: wrap;
+        max-width: 900px;
+        margin: auto;
+      }
+      .profile {
+        width: 145px;
+        color: #ddd;
+        cursor: pointer;
+        background: none;
+        border: 0;
+        padding: 0;
+        font: inherit;
+      }
+      .avatar {
+        display: grid;
+        place-items: center;
+        height: 145px;
+        border-radius: 6px;
+        background: linear-gradient(135deg, #0f766e, #14b8a6);
+        color: #fff;
+        font-size: 3rem;
+        font-weight: bold;
+        transition:
+          transform 0.15s,
+          outline 0.15s;
+      }
+      .profile:hover .avatar {
+        transform: scale(1.05);
+        outline: 3px solid #fff;
+      }
+      .profile-name {
+        display: block;
+        padding-top: 11px;
+        font-size: 1rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .add .avatar {
+        background: #353535;
+        color: #aaa;
+        font-weight: normal;
+      }
+      .add:hover .avatar {
+        color: #fff;
+      }
+      .profile-actions {
+        margin-top: 35px;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+      }
+      .primary {
+        border: 0;
+        border-radius: 4px;
+        background: var(--red);
+        color: #fff;
+        padding: 11px 16px;
+        font-weight: bold;
+      }
+      .secondary {
+        border: 1px solid #777;
+        border-radius: 4px;
+        background: transparent;
+        color: #fff;
+        padding: 10px 15px;
+      }
+      .danger {
+        border: 0;
+        border-radius: 4px;
+        background: #b42318;
+        color: #fff;
+        padding: 10px 15px;
+      }
+      .toolbar,
+      .buttons {
+        display: flex;
+        gap: 9px;
+        justify-content: center;
+        margin: 18px 0 26px;
+        flex-wrap: wrap;
+      }
+      .appliance {
+        position: relative;
+        margin-top: 14px;
+        padding: 17px;
+        background: #292929;
+        border-radius: 6px;
+      }
+      .appliance-title {
+        width: calc(100% - 38px);
+        margin: 0 0 14px;
+        border: 0;
+        border-bottom: 1px solid #666;
+        border-radius: 0;
+        background: transparent;
+        padding: 4px 0;
+        color: #fff;
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+      .remove-device {
+        position: absolute;
+        right: 15px;
+        top: 16px;
+        border: 0;
+        background: transparent;
+        color: #bbb;
+        font-size: 1.45rem;
+      }
+      .remove-device:hover {
+        color: #fff;
+      }
+      .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .small {
+        padding: 7px 10px;
+        font-size: 0.9rem;
+      }
+      dialog {
+        width: min(400px, calc(100% - 30px));
+        padding: 24px;
+        border: 0;
+        border-radius: 8px;
+        background: #252525;
+        color: #fff;
+        box-shadow: 0 12px 40px #000;
+      }
+      dialog::backdrop {
+        background: rgba(0, 0, 0, 0.76);
+      }
+      dialog h2 {
+        margin-top: 0;
+      }
+      .form-field {
+        margin-bottom: 14px;
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+        margin-top: 20px;
+      }
+      .topbar-actions { display: flex; align-items: center; gap: 10px; }
+      .icon-button { width:42px; height:42px; display:grid; place-items:center; border:1px solid #557080; border-radius:50%; background:transparent; color:#fff; font-size:1.25rem; }
+      .language-button { min-width:48px; height:38px; border:1px solid #557080; border-radius:5px; background:transparent; color:#fff; font-weight:bold; }
+      .profile-avatar-button { width:42px; height:42px; border:2px solid #d7fffb; border-radius:50%; color:#fff; font-weight:bold; font-size:1rem; }
+      .style-0 { background:linear-gradient(135deg,#0f766e,#14b8a6); }.style-1 { background:linear-gradient(135deg,#2563eb,#60a5fa); }.style-2 { background:linear-gradient(135deg,#7c3aed,#c084fc); }.style-3 { background:linear-gradient(135deg,#db2777,#f472b6); }.style-4 { background:linear-gradient(135deg,#ea580c,#fbbf24); }.style-5 { background:linear-gradient(135deg,#4b5563,#94a3b8); }
+      .side-menu { position:fixed; z-index:5; top:0; left:0; width:min(300px,85vw); height:100vh; padding:82px 20px 20px; background:#061625; transform:translateX(-102%); transition:transform .2s ease; box-shadow:12px 0 28px rgba(0,0,0,.35); }.side-menu.open { transform:translateX(0); }.menu-overlay { position:fixed; inset:0; z-index:4; display:none; background:rgba(0,0,0,.58); }.menu-overlay.open { display:block; }.menu-heading { color:var(--muted); font-size:.85rem; margin:0 0 12px; }.menu-item { width:100%; padding:14px; margin:4px 0; border:0; border-radius:6px; background:transparent; color:#fff; text-align:left; font-size:1rem; }.menu-item:hover { background:#13344a; }
+      .avatar-options { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }.avatar-choice { width:42px; height:42px; border:2px solid transparent; border-radius:50%; }.avatar-choice.selected { outline:2px solid #fff; outline-offset:2px; }
+      .user-label { color: var(--muted); font-size: .9rem; }
+      .login-screen { max-width: 440px; margin: 10vh auto; padding: 30px 20px; text-align: center; }
+      .login-card { background: var(--panel); border-radius: 10px; padding: 28px; text-align: left; }
+      .login-card h2 { margin: 0 0 10px; }
+      .login-card .profile-summary { margin: 0 0 20px; text-align: left; line-height: 1.5; }
+      .guide-list { line-height: 1.7; padding-left: 20px; color: #e5f6f5; }
+      @media (max-width: 450px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .avatar {
+          height: 120px;
+        }
+        .profile {
+          width: 120px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()"></div>
+    <aside id="sideMenu" class="side-menu">
+      <p class="menu-heading">POWER PROFILES</p>
+      <button class="menu-item" onclick="openGuide(); toggleMenu()" data-i18n="guide">คู่มือ</button>
+      <button id="changeProfileButton" class="menu-item" onclick="showProfiles(); toggleMenu()" data-i18n="switchProfile">เปลี่ยนโปรไฟล์</button>
+      <button id="logoutButton" class="menu-item" onclick="logout(); toggleMenu()" data-i18n="logout">ออกจากระบบ</button>
+    </aside>
+    <header class="topbar">
+      <div class="topbar-actions"><button class="icon-button" onclick="toggleMenu()" aria-label="Menu">☰</button><span class="brand">POWER PROFILES</span></div>
+      <div class="topbar-actions">
+        <button id="languageButton" class="language-button" onclick="toggleLanguage()">EN</button>
+        <span id="userLabel" class="user-label"></span>
+        <button id="profileAvatarButton" class="profile-avatar-button style-0" onclick="openRenameProfile()" aria-label="Edit profile">?</button>
+      </div>
+    </header>
+    <section id="loginScreen" class="login-screen">
+      <h1 data-i18n="welcome">ยินดีต้อนรับ</h1>
+      <div class="login-card">
+        <h2 data-i18n="start">เริ่มใช้งาน Power Profiles</h2>
+        <p class="profile-summary" data-i18n="loginDescription">ใส่ชื่อของคุณเพื่อสร้างพื้นที่คำนวณส่วนตัวบนเบราว์เซอร์นี้</p>
+        <label for="loginName" data-i18n="username">ชื่อผู้ใช้</label>
+        <input id="loginName" maxlength="30" placeholder="เช่น Somchai" onkeydown="if(event.key === 'Enter') login()">
+        <div class="modal-actions"><button class="primary" onclick="login()" data-i18n="login">เข้าสู่ระบบ</button></div>
+      </div>
+    </section>
+    <section id="profileScreen" class="profile-screen" style="display:none">
+      <h1>Choose your profile</h1>
+      <div id="profileGrid" class="profile-grid"></div>
+      <div class="profile-actions">
+        <button class="secondary" onclick="openNewProfile()" data-i18n="manageProfiles">
+          จัดการโปรไฟล์
+        </button>
+      </div>
+    </section>
+    <main id="calculator" class="main calculator">
+      <h1 id="calculatorTitle">คำนวณค่าไฟ</h1>
+      <p id="profileInfo" class="profile-summary"></p>
+      <div class="toolbar">
+        <button class="primary" onclick="saveCurrentProfile()" data-i18n="save">Save</button
+        ><button class="secondary" onclick="openRenameProfile()" data-i18n="rename">
+          เปลี่ยนชื่อ</button
+        ><button class="danger" onclick="deleteProfile()" data-i18n="deleteProfile">ลบโปรไฟล์</button>
+      </div>
+      <section class="card">
+        <label for="unitRate" data-i18n="rate">เรทค่าไฟ (บาท / หน่วย)</label
+        ><input
+          type="number"
+          id="unitRate"
+          value="8"
+          min="0"
+          step="0.01"
+          oninput="calculateTotal()"
+        />
+      </section>
+      <section class="card">
+        <div class="section-head">
+          <h2 data-i18n="appliances">อุปกรณ์ไฟฟ้า</h2>
+          <button class="primary small" onclick="addAppliance()" data-i18n="addAppliance">
+            + เพิ่มอุปกรณ์
+          </button>
+        </div>
+        <div id="applianceList"></div>
+      </section>
+      <section class="summary">
+        <p data-i18n="monthlyEstimate">ประมาณการค่าไฟรวมต่อเดือน</p>
+        <strong id="totalCost">0.00 บาท</strong>
+        <p id="usage">0.00 หน่วย / 30 วัน</p>
+      </section>
+    </main>
+    <dialog id="profileDialog">
+      <h2 id="dialogTitle">เพิ่มโปรไฟล์</h2>
+      <div class="form-field">
+        <label for="profileName" data-i18n="profileName">ชื่อโปรไฟล์</label
+        ><input
+          id="profileName"
+          maxlength="30"
+          placeholder="เช่น ห้อง 101 หรือ บ้าน"
+        />
+      </div>
+      <div class="form-field">
+        <label for="profileLocation" data-i18n="location">สถานที่ (ไม่บังคับ)</label
+        ><input
+          id="profileLocation"
+          maxlength="40"
+          placeholder="เช่น กรุงเทพฯ"
+        />
+      </div>
+      <div class="form-field">
+        <label data-i18n="avatarStyle">สีโปรไฟล์</label>
+        <div id="avatarOptions" class="avatar-options"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="secondary" onclick="closeDialog()" data-i18n="cancel">ยกเลิก</button
+        ><button
+          class="primary"
+          id="dialogSaveButton"
+          onclick="saveProfileDialog()"
+        >
+          สร้างโปรไฟล์
+        </button>
+      </div>
+    </dialog>
+    <dialog id="guideDialog">
+      <h2 data-i18n="guideTitle">คู่มือการใช้งาน</h2>
+      <ol class="guide-list">
+        <li>เลือกโปรไฟล์ หรือกด <strong>เพิ่มโปรไฟล์</strong> เพื่อสร้างชุดคำนวณใหม่</li>
+        <li>กด <strong>+ เพิ่มอุปกรณ์</strong> แล้วพิมพ์ชื่ออุปกรณ์ กำลังไฟ และชั่วโมงที่ใช้ต่อวัน</li>
+        <li>ระบบคำนวณหน่วยไฟและค่าไฟโดยประมาณสำหรับ 30 วันทันที</li>
+        <li>กด <strong>Save</strong> เพื่อบันทึกค่าของโปรไฟล์</li>
+        <li>ใช้ <strong>เปลี่ยนชื่อ</strong> เพื่อแก้ชื่อโปรไฟล์ และ <strong>เปลี่ยนโปรไฟล์</strong> เพื่อสลับโปรไฟล์</li>
+      </ol>
+      <div class="modal-actions"><button class="primary" onclick="closeGuide()" data-i18n="understood">เข้าใจแล้ว</button></div>
+    </dialog>
+    <script>
+      const STORAGE_KEY = "powerCalculatorProfilesV3";
+      const USER_KEY = "powerCalculatorUser";
+      const LANGUAGE_KEY = "powerCalculatorLanguage";
+      const translations = {
+        th: { guide:"คู่มือ", switchProfile:"เปลี่ยนโปรไฟล์", logout:"ออกจากระบบ", welcome:"ยินดีต้อนรับ", start:"เริ่มใช้งาน Power Profiles", loginDescription:"ใส่ชื่อของคุณเพื่อสร้างพื้นที่คำนวณส่วนตัวบนเบราว์เซอร์นี้", username:"ชื่อผู้ใช้", login:"เข้าสู่ระบบ", manageProfiles:"จัดการโปรไฟล์", save:"บันทึก", deleteProfile:"ลบโปรไฟล์", rate:"เรทค่าไฟ (บาท / หน่วย)", appliances:"อุปกรณ์ไฟฟ้า", addAppliance:"+ เพิ่มอุปกรณ์", monthlyEstimate:"ประมาณการค่าไฟรวมต่อเดือน", profileName:"ชื่อโปรไฟล์", location:"สถานที่ (ไม่บังคับ)", avatarStyle:"สีโปรไฟล์", cancel:"ยกเลิก", understood:"เข้าใจแล้ว", guideTitle:"คู่มือการใช้งาน", chooseProfile:"Choose your profile", firstDevice:"เครื่องใช้ไฟฟ้าชิ้นที่ 1", guideHtml:"<li>เลือกโปรไฟล์ หรือกด <strong>เพิ่มโปรไฟล์</strong> เพื่อสร้างชุดคำนวณใหม่</li><li>กด <strong>+ เพิ่มอุปกรณ์</strong> แล้วพิมพ์ชื่ออุปกรณ์ กำลังไฟ และชั่วโมงที่ใช้ต่อวัน</li><li>ระบบคำนวณหน่วยไฟและค่าไฟโดยประมาณสำหรับ 30 วันทันที</li><li>กด <strong>บันทึก</strong> เพื่อเก็บค่าของโปรไฟล์</li><li>ใช้ <strong>เปลี่ยนชื่อ</strong> เพื่อแก้ชื่อโปรไฟล์</li>" },
+        en: { guide:"Guide", switchProfile:"Switch profile", logout:"Log out", welcome:"Welcome", start:"Start using Power Profiles", loginDescription:"Enter your name to create your personal calculator space in this browser.", username:"Username", login:"Log in", manageProfiles:"Manage profiles", save:"Save", deleteProfile:"Delete profile", rate:"Electricity rate (baht / unit)", appliances:"Electrical appliances", addAppliance:"+ Add appliance", monthlyEstimate:"Estimated monthly electricity cost", profileName:"Profile name", location:"Location (optional)", avatarStyle:"Profile color", cancel:"Cancel", understood:"Got it", guideTitle:"How to use", chooseProfile:"Choose your profile", firstDevice:"Appliance 1", guideHtml:"<li>Select a profile or choose <strong>Add profile</strong> to create a new calculation set.</li><li>Choose <strong>+ Add appliance</strong>, then enter its name, wattage, and daily usage hours.</li><li>The estimated 30-day energy use and cost update immediately.</li><li>Select <strong>Save</strong> to keep this profile's values.</li><li>Use <strong>Rename</strong> to update the profile name.</li>" }
+      };
+      translations.th.rename = "เปลี่ยนชื่อ";
+      translations.en.rename = "Rename";
+      let language = localStorage.getItem(LANGUAGE_KEY) || "th";
+      function t(key) { return translations[language][key] || key; }
+      function setLanguage(nextLanguage) {
+        language = nextLanguage;
+        localStorage.setItem(LANGUAGE_KEY, language);
+        document.documentElement.lang = language;
+        document.getElementById("languageButton").textContent = language === "th" ? "EN" : "ไทย";
+        document.querySelectorAll("[data-i18n]").forEach(el => el.textContent = t(el.dataset.i18n));
+        document.getElementById("profileName").placeholder = language === "th" ? "เช่น ห้อง 101 หรือ บ้าน" : "For example, Room 101 or Home";
+        document.getElementById("profileLocation").placeholder = language === "th" ? "เช่น กรุงเทพฯ" : "For example, Bangkok";
+        document.getElementById("profileScreen").querySelector("h1").textContent = t("chooseProfile");
+        document.querySelector(".guide-list").innerHTML = t("guideHtml");
+        renderProfiles();
+        const profile = activeProfile();
+        if (profile) selectProfile(profile.id);
+      }
+      function toggleLanguage() { setLanguage(language === "th" ? "en" : "th"); }
+      function toggleMenu() {
+        document.getElementById("sideMenu").classList.toggle("open");
+        document.getElementById("menuOverlay").classList.toggle("open");
+      }
+      const defaultValues = () => ({
+        unitRate: 8,
+        appliances: [{ name: t("firstDevice"), watt: 60, hours: 8 }],
+      });
+      let profiles = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [],
+        activeProfileId = null,
+        dialogMode = "create", selectedAvatarStyle = 0;
+      const newId = () =>
+        Date.now().toString(36) + Math.random().toString(36).slice(2);
+      function persist() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles));
+      }
+      function esc(value) {
+        const d = document.createElement("div");
+        d.textContent = value;
+        return d.innerHTML;
+      }
+      function activeProfile() {
+        return profiles.find((p) => p.id === activeProfileId);
+      }
+      function renderAvatarOptions() {
+        document.getElementById("avatarOptions").innerHTML = Array.from({length:6}, (_, index) => `<button type="button" class="avatar-choice style-${index} ${index === selectedAvatarStyle ? "selected" : ""}" onclick="chooseAvatarStyle(${index})" aria-label="Profile style ${index + 1}"></button>`).join("");
+      }
+      function chooseAvatarStyle(style) { selectedAvatarStyle = style; renderAvatarOptions(); }
+      function updateProfileAvatar(profile) {
+        const button = document.getElementById("profileAvatarButton");
+        const style = profile?.style ?? 0;
+        button.className = "profile-avatar-button style-" + style;
+        button.textContent = profile ? profile.name.charAt(0).toUpperCase() : "?";
+      }
+      function currentUser() {
+        return localStorage.getItem(USER_KEY) || "";
+      }
+      function updateUserUI() {
+        const user = currentUser();
+        document.getElementById("userLabel").textContent = user ? (language === "th" ? "สวัสดี, " : "Hello, ") + user : "";
+        document.getElementById("logoutButton").style.display = user ? "inline-block" : "none";
+        document.getElementById("changeProfileButton").style.display = user ? "inline-block" : "none";
+        document.getElementById("profileAvatarButton").style.display = user ? "inline-block" : "none";
+      }
+      function login() {
+        const name = document.getElementById("loginName").value.trim();
+        if (!name) return alert(language === "th" ? "กรุณากรอกชื่อผู้ใช้" : "Please enter a username");
+        localStorage.setItem(USER_KEY, name);
+        document.getElementById("loginScreen").style.display = "none";
+        updateUserUI();
+        showProfiles();
+      }
+      function logout() {
+        localStorage.removeItem(USER_KEY);
+        activeProfileId = null;
+        document.getElementById("calculator").style.display = "none";
+        document.getElementById("profileScreen").style.display = "none";
+        document.getElementById("loginScreen").style.display = "block";
+        document.getElementById("loginName").value = "";
+        updateUserUI();
+      }
+      function openGuide() { document.getElementById("guideDialog").showModal(); }
+      function closeGuide() { document.getElementById("guideDialog").close(); }
+      function renderProfiles() {
+        document.getElementById("profileGrid").innerHTML =
+          profiles
+            .map(
+              (p) =>
+                `<button class="profile" onclick="selectProfile('${p.id}')"><span class="avatar style-${p.style ?? 0}">${esc(p.name.charAt(0).toUpperCase())}</span><span class="profile-name">${esc(p.name)}</span></button>`,
+            )
+            .join("") +
+          `<button class="profile add" onclick="openNewProfile()"><span class="avatar">+</span><span class="profile-name">${language === "th" ? "เพิ่มโปรไฟล์" : "Add profile"}</span></button>`;
+      }
+      function showProfiles() {
+        document.getElementById("calculator").style.display = "none";
+        document.getElementById("profileScreen").style.display = "block";
+        renderProfiles();
+      }
+      function selectProfile(profileId) {
+        activeProfileId = profileId;
+        const p = activeProfile();
+        document.getElementById("profileScreen").style.display = "none";
+        document.getElementById("calculator").style.display = "block";
+        document.getElementById("calculatorTitle").textContent = p.name;
+        document.getElementById("profileInfo").textContent =
+          p.location || (language === "th" ? "โปรไฟล์ค่าไฟของคุณ" : "Your electricity profile");
+        updateProfileAvatar(p);
+        setValues(p.values);
+      }
+      function renderAppliances(appliances) {
+        document.getElementById("applianceList").innerHTML = appliances
+          .map(
+            (item, index) =>
+              `<div class="appliance"><button class="remove-device" onclick="removeAppliance(${index})" title="Remove appliance">×</button><input class="appliance-title" value="${esc(item.name)}" oninput="calculateTotal()" aria-label="Appliance name"><div class="grid"><div><label>${language === "th" ? "กำลังไฟ (วัตต์)" : "Power (watts)"}</label><input class="watt" type="number" min="0" value="${item.watt}" oninput="calculateTotal()"></div><div><label>${language === "th" ? "ใช้งานต่อวัน (ชั่วโมง)" : "Hours used per day"}</label><input class="hours" type="number" min="0" step="0.1" value="${item.hours}" oninput="calculateTotal()"></div></div></div>`,
+          )
+          .join("");
+      }
+      function getValues() {
+        return {
+          unitRate: document.getElementById("unitRate").value,
+          appliances: [...document.querySelectorAll(".appliance")].map(
+            (el) => ({
+              name:
+                el.querySelector(".appliance-title").value.trim() || "อุปกรณ์",
+              watt: el.querySelector(".watt").value,
+              hours: el.querySelector(".hours").value,
+            }),
+          ),
+        };
+      }
+      function setValues(values) {
+        document.getElementById("unitRate").value = values.unitRate ?? 8;
+        renderAppliances(
+          values.appliances?.length
+            ? values.appliances
+            : defaultValues().appliances,
+        );
+        calculateTotal();
+      }
+      function addAppliance() {
+        const values = getValues();
+        values.appliances.push({ name: language === "th" ? "อุปกรณ์ใหม่" : "New appliance", watt: 0, hours: 0 });
+        renderAppliances(values.appliances);
+        calculateTotal();
+      }
+      function removeAppliance(index) {
+        const values = getValues();
+        if (values.appliances.length === 1)
+          return alert(language === "th" ? "ต้องมีอุปกรณ์อย่างน้อย 1 รายการ" : "At least one appliance is required");
+        values.appliances.splice(index, 1);
+        renderAppliances(values.appliances);
+        calculateTotal();
+      }
+      function openNewProfile() {
+        dialogMode = "create";
+        document.getElementById("dialogTitle").textContent = language === "th" ? "เพิ่มโปรไฟล์" : "Add profile";
+        document.getElementById("dialogSaveButton").textContent =
+          language === "th" ? "สร้างโปรไฟล์" : "Create profile";
+        document.getElementById("profileName").value = "";
+        document.getElementById("profileLocation").value = "";
+        selectedAvatarStyle = 0;
+        renderAvatarOptions();
+        document.getElementById("profileDialog").showModal();
+      }
+      function openRenameProfile() {
+        const p = activeProfile();
+        if (!p) return;
+        dialogMode = "rename";
+        document.getElementById("dialogTitle").textContent =
+          language === "th" ? "เปลี่ยนชื่อโปรไฟล์" : "Rename profile";
+        document.getElementById("dialogSaveButton").textContent =
+          language === "th" ? "บันทึกชื่อใหม่" : "Save new name";
+        document.getElementById("profileName").value = p.name;
+        document.getElementById("profileLocation").value = p.location || "";
+        selectedAvatarStyle = p.style ?? 0;
+        renderAvatarOptions();
+        document.getElementById("profileDialog").showModal();
+      }
+      function closeDialog() {
+        document.getElementById("profileDialog").close();
+      }
+      function saveProfileDialog() {
+        const name = document.getElementById("profileName").value.trim(),
+          location = document.getElementById("profileLocation").value.trim();
+        if (!name) return alert(language === "th" ? "กรุณากรอกชื่อโปรไฟล์" : "Please enter a profile name");
+        if (dialogMode === "rename") {
+          const p = activeProfile();
+          p.name = name;
+          p.location = location;
+          p.style = selectedAvatarStyle;
+          persist();
+          closeDialog();
+          selectProfile(p.id);
+        } else {
+          const p = {
+            id: newId(),
+            name,
+            location,
+            style: selectedAvatarStyle,
+            values: activeProfile() ? getValues() : defaultValues(),
+          };
+          profiles.push(p);
+          persist();
+          closeDialog();
+          selectProfile(p.id);
+        }
+      }
+      function saveCurrentProfile() {
+        const p = activeProfile();
+        if (!p) return;
+        p.values = getValues();
+        persist();
+        alert(language === "th" ? "บันทึกค่าไฟของ “" + p.name + "” แล้ว" : "Saved “" + p.name + "”");
+      }
+      function deleteProfile() {
+        const p = activeProfile();
+        if (!p || !confirm(language === "th" ? "ลบโปรไฟล์ “" + p.name + "” ใช่หรือไม่?" : "Delete profile “" + p.name + "”?")) return;
+        profiles = profiles.filter((x) => x.id !== p.id);
+        persist();
+        activeProfileId = null;
+        showProfiles();
+      }
+      function calculateTotal() {
+        const rate = parseFloat(document.getElementById("unitRate").value) || 0;
+        const total = [...document.querySelectorAll(".appliance")].reduce(
+          (sum, el) =>
+            sum +
+            ((parseFloat(el.querySelector(".watt").value) || 0) *
+              (parseFloat(el.querySelector(".hours").value) || 0) *
+              30) /
+              1000,
+          0,
+        );
+        document.getElementById("totalCost").textContent =                                 
+          (total * rate).toLocaleString("th-TH", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }) + (language === "th" ? " บาท" : " baht");
+        document.getElementById("usage").textContent =
+          total.toLocaleString("th-TH", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }) + (language === "th" ? " หน่วย / 30 วัน" : " units / 30 days");
+      }
+      if (!profiles.length) {
+        profiles = [
+          {
+            id: newId(),
+            name: "โปรไฟล์เริ่มต้น",
+            location: "",
+            style: 0,
+            values: defaultValues(),
+          },
+        ];
+        persist();
+      }
+      renderProfiles();
+      updateUserUI();
+      setLanguage(language);
+      if (currentUser()) showProfiles();
+    </script>
+  </body>
+</html>
